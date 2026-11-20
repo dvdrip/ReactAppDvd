@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useEffect, useState, type FormEvent } from 'react';
 import './App.css';
 
 interface Forecast {
@@ -9,11 +9,70 @@ interface Forecast {
 }
 
 function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [forecasts, setForecasts] = useState<Forecast[]>();
+    const [username, setUsername] = useState('demo');
+    const [password, setPassword] = useState('password');
+    const [loginError, setLoginError] = useState('');
 
     useEffect(() => {
-        populateWeatherData();
-    }, []);
+        if (isLoggedIn) {
+            populateWeatherData();
+        }
+    }, [isLoggedIn]);
+
+    async function login(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setLoginError('');
+
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            setIsLoggedIn(true);
+        } else {
+            setLoginError('Invalid username or password.');
+        }
+    }
+
+    async function logout() {
+        await fetch('/logout', { method: 'POST' });
+        setIsLoggedIn(false);
+        setForecasts(undefined);
+    }
+
+    if (!isLoggedIn) {
+        return (
+            <main>
+                <h1>Sign in</h1>
+                <form onSubmit={login}>
+                    <div>
+                        <label htmlFor="username">Username</label>
+                        <input
+                            id="username"
+                            value={username}
+                            onChange={event => setUsername(event.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="password">Password</label>
+                        <input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={event => setPassword(event.target.value)}
+                        />
+                    </div>
+                    {loginError && <p role="alert">{loginError}</p>}
+                    <button type="submit">Sign in</button>
+                </form>
+                <p>Demo credentials: demo / password</p>
+            </main>
+        );
+    }
 
     const contents = forecasts === undefined
         ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
@@ -40,6 +99,7 @@ function App() {
 
     return (
         <div>
+            <button type="button" onClick={logout}>Sign out</button>
             <h1 id="tableLabel">Weather forecast</h1>
             <p>This component demonstrates fetching data from the server.</p>
             {contents}
