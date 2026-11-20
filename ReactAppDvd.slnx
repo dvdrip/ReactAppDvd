@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="reactappdvd.client/reactappdvd.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="ReactAppDvd.Server/ReactAppDvd.Server.csproj" />
+</Solution>

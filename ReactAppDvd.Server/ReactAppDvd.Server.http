@@ -1,0 +1,6 @@
+@ReactAppDvd.Server_HostAddress = http://localhost:5197
+
+GET {{ReactAppDvd.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
