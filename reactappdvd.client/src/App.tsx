@@ -46,65 +46,101 @@ function App() {
 
     if (!isLoggedIn) {
         return (
-            <main>
-                <h1>Sign in</h1>
-                <form onSubmit={login}>
-                    <div>
-                        <label htmlFor="username">Username</label>
-                        <input
-                            id="username"
-                            value={username}
-                            onChange={event => setUsername(event.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="password">Password</label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={event => setPassword(event.target.value)}
-                        />
-                    </div>
-                    {loginError && <p role="alert">{loginError}</p>}
-                    <button type="submit">Sign in</button>
-                </form>
-                <p>Demo credentials: demo / password</p>
+            <main className="auth-shell">
+                <section className="auth-card" aria-labelledby="login-title">
+                    <div className="brand-mark" aria-hidden="true">☀</div>
+                    <p className="eyebrow">WEATHERSPACE</p>
+                    <h1 id="login-title">Welcome back</h1>
+                    <p className="muted">Sign in to see your local forecast.</p>
+                    <form className="login-form" onSubmit={login}>
+                        <div className="field">
+                            <label htmlFor="username">Username</label>
+                            <input
+                                id="username"
+                                value={username}
+                                onChange={event => setUsername(event.target.value)}
+                                autoComplete="username"
+                            />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="password">Password</label>
+                            <input
+                                id="password"
+                                type="password"
+                                value={password}
+                                onChange={event => setPassword(event.target.value)}
+                                autoComplete="current-password"
+                            />
+                        </div>
+                        {loginError && <p className="error-message" role="alert">{loginError}</p>}
+                        <button className="primary-button" type="submit">Sign in <span aria-hidden="true">→</span></button>
+                    </form>
+                    <p className="demo-hint">Demo access: <strong>demo</strong> / <strong>password</strong></p>
+                </section>
             </main>
         );
     }
 
     const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
+        ? <div className="loading-card"><span className="spinner" aria-hidden="true" />Loading your forecast...</div>
+        : <div className="table-card">
+            <div className="table-heading">
+                <div>
+                    <p className="eyebrow">NEXT FIVE DAYS</p>
+                    <h2>Detailed forecast</h2>
+                </div>
+                <span className="live-badge"><span /> Live</span>
+            </div>
+            <div className="table-scroll">
+                <table aria-labelledby="tableLabel">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Conditions</th>
+                            <th>Temperature</th>
+                            <th>Feels like</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {forecasts.map(forecast =>
+                            <tr key={forecast.date}>
+                                <td><strong>{formatDate(forecast.date)}</strong></td>
+                                <td><span className="condition-icon" aria-hidden="true">☀</span>{forecast.summary}</td>
+                                <td><strong>{forecast.temperatureC}°C</strong></td>
+                                <td>{forecast.temperatureF}°F</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>;
 
     return (
-        <div>
-            <button type="button" onClick={logout}>Sign out</button>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
+        <main className="dashboard-shell">
+            <header className="topbar">
+                <div className="brand"><span className="brand-mark small" aria-hidden="true">☀</span><span>WEATHERSPACE</span></div>
+                <button className="sign-out-button" type="button" onClick={logout}>Sign out <span aria-hidden="true">↗</span></button>
+            </header>
+            <section className="hero" aria-labelledby="tableLabel">
+                <div>
+                    <p className="eyebrow">YOUR PERSONAL FORECAST</p>
+                    <h1 id="tableLabel">Good morning, {username}.</h1>
+                    <p className="muted">Here&apos;s what the sky has in store for the next few days.</p>
+                </div>
+                <div className="hero-icon" aria-hidden="true">☀</div>
+            </section>
+            {forecasts && <section className="stats-grid" aria-label="Current weather summary">
+                <div className="stat-card accent-card"><span className="stat-icon">☀</span><div><span className="stat-label">Today&apos;s outlook</span><strong>{forecasts[0]?.summary}</strong></div></div>
+                <div className="stat-card"><span className="stat-icon">🌡</span><div><span className="stat-label">Temperature</span><strong>{forecasts[0]?.temperatureC}°C <small>/ {forecasts[0]?.temperatureF}°F</small></strong></div></div>
+                <div className="stat-card"><span className="stat-icon">◷</span><div><span className="stat-label">Forecast period</span><strong>{forecasts.length} days</strong></div></div>
+            </section>}
             {contents}
-        </div>
+        </main>
     );
+
+    function formatDate(date: string) {
+        return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
 
     async function populateWeatherData() {
         const response = await fetch('weatherforecast');
