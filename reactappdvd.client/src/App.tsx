@@ -8,12 +8,15 @@ interface Forecast {
     summary: string;
 }
 
+type TemperatureUnit = 'C' | 'F';
+
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [forecasts, setForecasts] = useState<Forecast[]>();
     const [username, setUsername] = useState('demo');
     const [password, setPassword] = useState('password');
     const [loginError, setLoginError] = useState('');
+    const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('C');
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -89,7 +92,23 @@ function App() {
                     <p className="eyebrow">NEXT FIVE DAYS</p>
                     <h2>Detailed forecast</h2>
                 </div>
-                <span className="live-badge"><span /> Live</span>
+                <div className="table-actions">
+                    <div className="unit-toggle" role="group" aria-label="Temperature unit">
+                        <button
+                            className={temperatureUnit === 'C' ? 'selected' : ''}
+                            type="button"
+                            onClick={() => setTemperatureUnit('C')}
+                            aria-pressed={temperatureUnit === 'C'}
+                        >°C</button>
+                        <button
+                            className={temperatureUnit === 'F' ? 'selected' : ''}
+                            type="button"
+                            onClick={() => setTemperatureUnit('F')}
+                            aria-pressed={temperatureUnit === 'F'}
+                        >°F</button>
+                    </div>
+                    <span className="live-badge"><span /> Live</span>
+                </div>
             </div>
             <div className="table-scroll">
                 <table aria-labelledby="tableLabel">
@@ -98,7 +117,7 @@ function App() {
                             <th>Date</th>
                             <th>Conditions</th>
                             <th>Temperature</th>
-                            <th>Feels like</th>
+                            <th>Converted temperature</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -106,8 +125,8 @@ function App() {
                             <tr key={forecast.date}>
                                 <td><strong>{formatDate(forecast.date)}</strong></td>
                                 <td><span className="condition-icon" aria-hidden="true">☀</span>{forecast.summary}</td>
-                                <td><strong>{forecast.temperatureC}°C</strong></td>
-                                <td>{forecast.temperatureF}°F</td>
+                                <td><strong>{temperatureUnit === 'C' ? forecast.temperatureC : forecast.temperatureF}°{temperatureUnit}</strong></td>
+                                <td>{temperatureUnit === 'C' ? forecast.temperatureF : forecast.temperatureC}°{temperatureUnit === 'C' ? 'F' : 'C'}</td>
                             </tr>
                         )}
                     </tbody>
@@ -131,7 +150,7 @@ function App() {
             </section>
             {forecasts && <section className="stats-grid" aria-label="Current weather summary">
                 <div className="stat-card accent-card"><span className="stat-icon">☀</span><div><span className="stat-label">Today&apos;s outlook</span><strong>{forecasts[0]?.summary}</strong></div></div>
-                <div className="stat-card"><span className="stat-icon">🌡</span><div><span className="stat-label">Temperature</span><strong>{forecasts[0]?.temperatureC}°C <small>/ {forecasts[0]?.temperatureF}°F</small></strong></div></div>
+                <div className="stat-card"><span className="stat-icon">🌡</span><div><span className="stat-label">Temperature</span><strong>{temperatureUnit === 'C' ? forecasts[0]?.temperatureC : forecasts[0]?.temperatureF}°{temperatureUnit} <small>/ {temperatureUnit === 'C' ? forecasts[0]?.temperatureF : forecasts[0]?.temperatureC}°{temperatureUnit === 'C' ? 'F' : 'C'}</small></strong></div></div>
                 <div className="stat-card"><span className="stat-icon">◷</span><div><span className="stat-label">Forecast period</span><strong>{forecasts.length} days</strong></div></div>
             </section>}
             {contents}
