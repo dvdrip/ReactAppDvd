@@ -14,10 +14,11 @@ body {
     min-width: 320px;
     min-height: 100vh;
     margin: 0;
-    background:
-        radial-gradient(circle at 8% 0%, rgba(32, 113, 132, .35), transparent 34rem),
-        radial-gradient(circle at 90% 100%, rgba(22, 72, 113, .32), transparent 32rem),
-        #07182c;
+    background-color: #09111d;
+    background-image:
+        linear-gradient(rgba(174, 194, 210, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(174, 194, 210, .025) 1px, transparent 1px);
+    background-size: 32px 32px;
 }
 
 button, input { font-family: inherit; }
