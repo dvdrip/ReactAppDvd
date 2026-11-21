@@ -155,6 +155,7 @@
 
 .topbar,
 .brand,
+.page-navigation,
 .sign-out-button,
 .live-badge,
 .stat-card,
@@ -166,6 +167,33 @@
 .topbar {
     justify-content: space-between;
     margin-bottom: 82px;
+}
+
+.page-navigation {
+    gap: 6px;
+    padding: 4px;
+    background: rgba(15, 30, 55, .68);
+    border: 1px solid rgba(148, 190, 218, .13);
+    border-radius: 12px;
+}
+
+.page-navigation button {
+    padding: 9px 13px;
+    color: #8fa9bb;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.page-navigation button:hover { color: #eff8fb; }
+
+.page-navigation button.active {
+    color: #062b3a;
+    background: #6de1d4;
 }
 
 .brand {
@@ -507,7 +535,9 @@ td strong { color: #dbeaf0; }
 @media (max-width: 700px) {
     .auth-shell, .dashboard-shell { width: min(100% - 32px, 560px); }
     .auth-card { padding: 34px 24px; }
-    .topbar { margin-bottom: 56px; }
+    .topbar { flex-wrap: wrap; gap: 16px; margin-bottom: 56px; }
+    .page-navigation { order: 3; width: 100%; }
+    .page-navigation button { flex: 1; }
     .hero { align-items: flex-start; }
     .hero-icon { width: 76px; height: 76px; font-size: 42px; }
     .location-panel { align-items: stretch; flex-direction: column; }
