@@ -2,6 +2,16 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Publishing to IIS
+
+The server project builds the React client as part of a normal build or publish. On the build machine, install Node.js and the .NET 10 SDK, then publish from the repository root:
+
+```powershell
+dotnet publish .\ReactAppDvd.Server\ReactAppDvd.Server.csproj -c Release -o .\artifacts\publish
+```
+
+Install the .NET 10 ASP.NET Core Hosting Bundle on the IIS machine. Create an IIS site pointing to the published folder, use an application pool set to **No Managed Code**, and configure an HTTPS binding. Grant the app pool identity read access to the published folder. The sample login in the server is for demonstration only; replace it before making the site accessible to others.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)

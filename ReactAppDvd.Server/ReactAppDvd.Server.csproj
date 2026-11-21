@@ -22,4 +22,9 @@
     </ProjectReference>
   </ItemGroup>
 
+  <Target Name="BuildClient" BeforeTargets="ResolveProjectReferences" Condition="'$(DesignTimeBuild)' != 'true'">
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm ci" Condition="!Exists('$(SpaRoot)\node_modules')" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
+  </Target>
+
 </Project>
