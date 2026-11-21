@@ -70,7 +70,7 @@ app.MapPost("/logout", async (HttpContext httpContext) =>
 
 app.MapControllers();
 
-app.MapFallbackToFile("/index.html");
+app.MapFallbackToFile("index.html");
 
 app.Run();
 
