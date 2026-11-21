@@ -377,6 +377,37 @@
     padding: 24px 26px 18px;
 }
 
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.unit-toggle {
+    display: flex;
+    padding: 3px;
+    background: #0b2038;
+    border: 1px solid #28435c;
+    border-radius: 9px;
+}
+
+.unit-toggle button {
+    padding: 6px 9px;
+    color: #7893a6;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.unit-toggle button.selected {
+    color: #062b3a;
+    background: #6de1d4;
+}
+
 .table-heading h2 {
     margin: 0;
     color: #eaf5f8;

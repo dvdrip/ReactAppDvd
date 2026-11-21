@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
 import './App.css';
 
 interface Forecast {
@@ -54,96 +54,7 @@ function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('F');
 
-    useEffect(() => {
-        if (isLoggedIn) {
-            useCurrentLocation();
-        }
-    }, [isLoggedIn]);
-
-    async function login(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setLoginError('');
-
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-
-        if (response.ok) {
-            setIsLoggedIn(true);
-        } else {
-            setLoginError('Invalid username or password.');
-        }
-    }
-
-    async function logout() {
-        await fetch('/logout', { method: 'POST' });
-        setIsLoggedIn(false);
-        setForecasts(undefined);
-    }
-
-    function useCurrentLocation() {
-        setWeatherError('');
-        if (!navigator.geolocation) {
-            setWeatherError('Location is not available in this browser. Search for a city instead.');
-            return;
-        }
-
-        setIsLoading(true);
-        navigator.geolocation.getCurrentPosition(
-            async position => {
-                const { latitude, longitude } = position.coords;
-                const label = await getLocationLabel(latitude, longitude);
-                loadWeather(latitude, longitude, label);
-            },
-            () => {
-                setIsLoading(false);
-                setWeatherError('Location permission was not granted. Search for a city below.');
-            },
-            { enableHighAccuracy: false, timeout: 10000 }
-        );
-    }
-
-    async function getLocationLabel(latitude: number, longitude: number) {
-        try {
-            const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
-            if (!response.ok) return 'Your location';
-
-            const data = await response.json() as ReverseGeocodeResponse;
-            const city = data.city || data.locality;
-            if (!city) return 'Your location';
-
-            return data.principalSubdivision
-                ? `${city}, ${data.principalSubdivision}`
-                : city;
-        } catch {
-            return 'Your location';
-        }
-    }
-
-    async function searchCity(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        if (!locationQuery.trim()) return;
-
-        setIsLoading(true);
-        setWeatherError('');
-        try {
-            const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locationQuery.trim())}&count=1&language=en&format=json`);
-            if (!response.ok) throw new Error('Search failed');
-            const data = await response.json() as { results?: GeocodingResult[] };
-            const result = data.results?.[0];
-            if (!result) throw new Error('City not found');
-
-            const label = result.admin1 ? `${result.name}, ${result.admin1}` : `${result.name}, ${result.country}`;
-            await loadWeather(result.latitude, result.longitude, label);
-        } catch {
-            setIsLoading(false);
-            setWeatherError('We could not find that city. Try a different search.');
-        }
-    }
-
-    async function loadWeather(latitude: number, longitude: number, label: string) {
+    const loadWeather = useCallback(async (latitude: number, longitude: number, label: string) => {
         try {
             const params = new URLSearchParams({
                 latitude: latitude.toString(),
@@ -172,6 +83,73 @@ function App() {
             setWeatherError('Live weather is temporarily unavailable. Please try again.');
         } finally {
             setIsLoading(false);
+        }
+    }, []);
+
+    const requestCurrentLocation = useCallback(() => {
+        setWeatherError('');
+        if (!navigator.geolocation) {
+            setWeatherError('Location is not available in this browser. Search for a city instead.');
+            return;
+        }
+
+        setIsLoading(true);
+        navigator.geolocation.getCurrentPosition(
+            async position => {
+                const { latitude, longitude } = position.coords;
+                const label = await getLocationLabel(latitude, longitude);
+                await loadWeather(latitude, longitude, label);
+            },
+            () => {
+                setIsLoading(false);
+                setWeatherError('Location permission was not granted. Search for a city below.');
+            },
+            { enableHighAccuracy: false, timeout: 10000 }
+        );
+    }, [loadWeather]);
+
+    async function login(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setLoginError('');
+
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            setIsLoggedIn(true);
+            requestCurrentLocation();
+        } else {
+            setLoginError('Invalid username or password.');
+        }
+    }
+
+    async function logout() {
+        await fetch('/logout', { method: 'POST' });
+        setIsLoggedIn(false);
+        setForecasts(undefined);
+    }
+
+    async function searchCity(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!locationQuery.trim()) return;
+
+        setIsLoading(true);
+        setWeatherError('');
+        try {
+            const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locationQuery.trim())}&count=1&language=en&format=json`);
+            if (!response.ok) throw new Error('Search failed');
+            const data = await response.json() as { results?: GeocodingResult[] };
+            const result = data.results?.[0];
+            if (!result) throw new Error('City not found');
+
+            const label = result.admin1 ? `${result.name}, ${result.admin1}` : `${result.name}, ${result.country}`;
+            await loadWeather(result.latitude, result.longitude, label);
+        } catch {
+            setIsLoading(false);
+            setWeatherError('We could not find that city. Try a different search.');
         }
     }
 
@@ -216,7 +194,7 @@ function App() {
                 <div className="hero-icon" aria-hidden="true">☀</div>
             </section>
             <section className="location-panel" aria-label="Weather location">
-                <button className="location-button" type="button" onClick={useCurrentLocation}>⌖ Use my location</button>
+                <button className="location-button" type="button" onClick={requestCurrentLocation}>⌖ Use my location</button>
                 <span className="location-divider">or</span>
                 <form className="location-search" onSubmit={searchCity}>
                     <label className="sr-only" htmlFor="location-query">Search for a city</label>
@@ -239,6 +217,23 @@ function App() {
             </>}
         </main>
     );
+}
+
+async function getLocationLabel(latitude: number, longitude: number) {
+    try {
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+        if (!response.ok) return 'Your location';
+
+        const data = await response.json() as ReverseGeocodeResponse;
+        const city = data.city || data.locality;
+        if (!city) return 'Your location';
+
+        return data.principalSubdivision
+            ? `${city}, ${data.principalSubdivision}`
+            : city;
+    } catch {
+        return 'Your location';
+    }
 }
 
 function toFahrenheit(celsius: number) { return Math.round((celsius * 9) / 5 + 32); }
