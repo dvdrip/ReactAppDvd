@@ -1,5 +1,6 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import './App.css';
+import MealPlanPage from './components/MealPlanPage';
 
 interface Forecast {
     date: string;
@@ -43,6 +44,7 @@ type TemperatureUnit = 'C' | 'F';
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [activePage, setActivePage] = useState<'weather' | 'meal-plan'>('weather');
     const [forecasts, setForecasts] = useState<Forecast[]>();
     const [currentTemperatureC, setCurrentTemperatureC] = useState<number>();
     const [locationName, setLocationName] = useState('Your location');
@@ -158,7 +160,7 @@ function App() {
             <main className="auth-shell">
                 <section className="auth-card" aria-labelledby="login-title">
                     <div className="brand-mark" aria-hidden="true">☀</div>
-                    <p className="eyebrow">WEATHERSPACE</p>
+                    <p className="eyebrow">DAILYPLATE</p>
                     <h1 id="login-title">Welcome back</h1>
                     <p className="muted">Sign in to see your local forecast.</p>
                     <form className="login-form" onSubmit={login}>
@@ -182,9 +184,24 @@ function App() {
     return (
         <main className="dashboard-shell">
             <header className="topbar">
-                <div className="brand"><span className="brand-mark small" aria-hidden="true">☀</span><span>WEATHERSPACE</span></div>
+                <div className="brand"><span className="brand-mark small" aria-hidden="true">☀</span><span>DAILYPLATE</span></div>
+                <nav className="page-navigation" aria-label="Main navigation">
+                    <button
+                        className={activePage === 'weather' ? 'active' : ''}
+                        type="button"
+                        aria-current={activePage === 'weather' ? 'page' : undefined}
+                        onClick={() => setActivePage('weather')}
+                    >Weather</button>
+                    <button
+                        className={activePage === 'meal-plan' ? 'active' : ''}
+                        type="button"
+                        aria-current={activePage === 'meal-plan' ? 'page' : undefined}
+                        onClick={() => setActivePage('meal-plan')}
+                    >Meal plan</button>
+                </nav>
                 <button className="sign-out-button" type="button" onClick={logout}>Sign out <span aria-hidden="true">↗</span></button>
             </header>
+            {activePage === 'meal-plan' ? <MealPlanPage /> : <>
             <section className="hero" aria-labelledby="tableLabel">
                 <div>
                     <p className="eyebrow">LIVE WEATHER · {locationName.toUpperCase()}</p>
@@ -214,6 +231,7 @@ function App() {
                     <div className="table-heading"><div><p className="eyebrow">NEXT FIVE DAYS</p><h2>Detailed forecast</h2></div><div className="table-actions"><div className="unit-toggle" role="group" aria-label="Temperature unit"><button className={temperatureUnit === 'C' ? 'selected' : ''} type="button" onClick={() => setTemperatureUnit('C')} aria-pressed={temperatureUnit === 'C'}>°C</button><button className={temperatureUnit === 'F' ? 'selected' : ''} type="button" onClick={() => setTemperatureUnit('F')} aria-pressed={temperatureUnit === 'F'}>°F</button></div><span className="live-badge"><span /> Live</span></div></div>
                     <div className="table-scroll"><table><thead><tr><th>Date</th><th>Conditions</th><th>High</th><th>Low</th></tr></thead><tbody>{forecasts.map(forecast => { const high = temperatureUnit === 'C' ? forecast.highC : toFahrenheit(forecast.highC); const low = temperatureUnit === 'C' ? forecast.lowC : toFahrenheit(forecast.lowC); return <tr key={forecast.date}><td><strong>{formatDate(forecast.date)}</strong></td><td><span className="condition-icon" aria-hidden="true">☀</span>{forecast.summary}</td><td><strong>{high}°{temperatureUnit}</strong></td><td>{low}°{temperatureUnit}</td></tr>; })}</tbody></table></div>
                 </div>
+            </>}
             </>}
         </main>
     );
