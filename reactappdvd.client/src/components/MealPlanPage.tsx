@@ -307,7 +307,9 @@ function MealPlanPage() {
                         <div className="meal-ingredients">
                             <h3>Ingredients</h3>
                             <ul>
-                                {meal.ingredients.map(ingredient => <li key={ingredient}>{ingredient}</li>)}
+                                {meal.ingredients
+                                    .toSorted((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+                                    .map(ingredient => <li key={ingredient}>{ingredient}</li>)}
                             </ul>
                         </div>
                         <section
