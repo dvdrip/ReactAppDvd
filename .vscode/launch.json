@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET: Launch ReactAppDvd.Server",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-server",
+      "program": "${workspaceFolder}/ReactAppDvd.Server/bin/Debug/net10.0/ReactAppDvd.Server.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/ReactAppDvd.Server",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5197"
+      }
+    }
+  ]
+}
