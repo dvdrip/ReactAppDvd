@@ -10,7 +10,7 @@ The server project builds the React client as part of a normal build or publish.
 dotnet publish .\ReactAppDvd.Server\ReactAppDvd.Server.csproj -c Release -o .\artifacts\publish
 ```
 
-Install the .NET 10 ASP.NET Core Hosting Bundle on the IIS machine. Create an IIS site pointing to the published folder, use an application pool set to **No Managed Code**, and configure an HTTPS binding. Grant the app pool identity read access to the published folder. The sample login in the server is for demonstration only; replace it before making the site accessible to others.
+Install the .NET 10 ASP.NET Core Hosting Bundle on the IIS machine. Create an IIS site pointing to the published folder, use an application pool set to **No Managed Code**, and configure an HTTPS binding. Grant the app pool identity read and write access to the folder containing the SQLite `app.db` database.
 
 Currently, two official plugins are available:
 

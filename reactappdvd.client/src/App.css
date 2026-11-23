@@ -139,14 +139,14 @@
     border-radius: 9px;
 }
 
-.demo-hint {
+.auth-mode-toggle {
     margin: 28px 0 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
     color: #7893a6;
     font-size: 12px;
-}
-
-.demo-hint strong {
-    color: #afc8d6;
 }
 
 .dashboard-shell {

@@ -1,4 +1,4 @@
-import { useCallback, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import './App.css';
 import MealPlanPage from './components/MealPlanPage';
 
@@ -48,13 +48,22 @@ function App() {
     const [forecasts, setForecasts] = useState<Forecast[]>();
     const [currentTemperatureC, setCurrentTemperatureC] = useState<number>();
     const [locationName, setLocationName] = useState('Your location');
-    const [username, setUsername] = useState('demo');
-    const [password, setPassword] = useState('password');
+    const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
     const [weatherError, setWeatherError] = useState('');
     const [locationQuery, setLocationQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>('F');
+
+    useEffect(() => {
+        fetch('/auth/status')
+            .then(response => response.ok ? response.json() : Promise.reject())
+            .then((status: { isAuthenticated: boolean }) => setIsLoggedIn(status.isAuthenticated))
+            .catch(() => setIsLoggedIn(false));
+    }, []);
 
     const loadWeather = useCallback(async (latitude: number, longitude: number, label: string) => {
         try {
@@ -128,6 +137,39 @@ function App() {
         }
     }
 
+    async function register(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setLoginError('');
+
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, username, password })
+        });
+
+        if (response.ok) {
+            setIsLoggedIn(true);
+            requestCurrentLocation();
+        } else {
+            try {
+                const problem = await response.json() as {
+                    detail?: string;
+                    errors?: Record<string, string[]>;
+                };
+                const validationMessages = problem.errors
+                    ? Object.values(problem.errors).flat()
+                    : [];
+                setLoginError(
+                    validationMessages[0]
+                    ?? problem.detail
+                    ?? 'Account could not be created.'
+                );
+            } catch {
+                setLoginError('Account could not be created.');
+            }
+        }
+    }
+
     async function logout() {
         await fetch('/logout', { method: 'POST' });
         setIsLoggedIn(false);
@@ -161,15 +203,25 @@ function App() {
                 <section className="auth-card" aria-labelledby="login-title">
                     <div className="brand-mark" aria-hidden="true">☀</div>
                     <p className="eyebrow">DAILYPLATE</p>
-                    <h1 id="login-title">Welcome back</h1>
-                    <p className="muted">Sign in to see your local forecast.</p>
-                    <form className="login-form" onSubmit={login}>
+                    <h1 id="login-title">{authMode === 'login' ? 'Welcome back' : 'Create account'}</h1>
+                    <p className="muted">{authMode === 'login' ? 'Sign in to see your local forecast.' : 'Register to create a server-backed account.'}</p>
+                    <form className="login-form" onSubmit={authMode === 'login' ? login : register}>
+                        {authMode === 'register' && <div className="field"><label htmlFor="email">Email</label><input id="email" type="email" value={email} onChange={event => setEmail(event.target.value)} autoComplete="email" /></div>}
                         <div className="field"><label htmlFor="username">Username</label><input id="username" value={username} onChange={event => setUsername(event.target.value)} autoComplete="username" /></div>
                         <div className="field"><label htmlFor="password">Password</label><input id="password" type="password" value={password} onChange={event => setPassword(event.target.value)} autoComplete="current-password" /></div>
                         {loginError && <p className="error-message" role="alert">{loginError}</p>}
-                        <button className="primary-button" type="submit">Sign in <span aria-hidden="true">→</span></button>
+                        <button className="primary-button" type="submit">{authMode === 'login' ? 'Sign in' : 'Create account'} <span aria-hidden="true">→</span></button>
                     </form>
-                    <p className="demo-hint">Demo access: <strong>demo</strong> / <strong>password</strong></p>
+                    <button
+                        className="auth-mode-toggle"
+                        type="button"
+                        onClick={() => {
+                            setLoginError('');
+                            setAuthMode(authMode === 'login' ? 'register' : 'login');
+                        }}
+                    >
+                        {authMode === 'login' ? 'Create a new account' : 'Already have an account? Sign in'}
+                    </button>
                 </section>
             </main>
         );

@@ -1,0 +1,26 @@
+@ReactAppDvd.Server_HostAddress = http://localhost:5197
+
+### Authentication status
+GET {{ReactAppDvd.Server_HostAddress}}/auth/status
+
+### Register a server-backed account
+POST {{ReactAppDvd.Server_HostAddress}}/register
+Content-Type: application/json
+
+{
+  "email": "new-user@example.com",
+  "username": "new-user",
+  "password": "Example123!"
+}
+
+### Log in
+POST {{ReactAppDvd.Server_HostAddress}}/login
+Content-Type: application/json
+
+{
+  "username": "new-user",
+  "password": "Example123!"
+}
+
+### Log out
+POST {{ReactAppDvd.Server_HostAddress}}/logout
