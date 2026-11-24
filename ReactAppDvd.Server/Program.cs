@@ -4,7 +4,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReactAppDvd.Server;
+using ReactAppDvd.Server.Endpoints;
+using ReactAppDvd.Server.Models;
+using ReactAppDvd.Server.Services;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +50,14 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 builder.Services.AddValidation();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(
+        new JsonStringEnumConverter<MealCategory>(JsonNamingPolicy.CamelCase, allowIntegerValues: false));
+    options.SerializerOptions.Converters.Add(
+        new JsonStringEnumConverter<MealWeekday>(JsonNamingPolicy.CamelCase, allowIntegerValues: false));
+});
+builder.Services.AddScoped<IMealPlanService, MealPlanService>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -53,7 +66,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
+    await DatabaseInitializer.MigrateAsync(dbContext, app.Lifetime.ApplicationStopping);
 }
 
 app.UseDefaultFiles();
@@ -90,9 +103,10 @@ app.MapPost("/register", async Task<Results<Ok, BadRequest<ValidationProblemDeta
     if (!result.Succeeded)
     {
         var problem = new ValidationProblemDetails(
-            result.Errors.ToDictionary(
-                error => error.Code,
-                error => new[] { error.Description }));
+            new Dictionary<string, string[]>
+            {
+                ["registration"] = ["Account could not be created. Please check your information and try again."]
+            });
         return TypedResults.BadRequest(problem);
     }
 
@@ -127,6 +141,7 @@ app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager) =>
     .WithName("Logout")
     .WithSummary("Signs out the current user");
 
+app.MapMealPlanEndpoints();
 app.MapControllers();
 
 app.MapFallbackToFile("index.html");
@@ -146,3 +161,5 @@ public sealed record RegisterRequest(
 
 /// <summary>Describes whether the current request is authenticated.</summary>
 public sealed record AuthStatusResponse(bool IsAuthenticated);
+
+public partial class Program { }

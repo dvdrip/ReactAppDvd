@@ -151,22 +151,7 @@ function App() {
             setIsLoggedIn(true);
             requestCurrentLocation();
         } else {
-            try {
-                const problem = await response.json() as {
-                    detail?: string;
-                    errors?: Record<string, string[]>;
-                };
-                const validationMessages = problem.errors
-                    ? Object.values(problem.errors).flat()
-                    : [];
-                setLoginError(
-                    validationMessages[0]
-                    ?? problem.detail
-                    ?? 'Account could not be created.'
-                );
-            } catch {
-                setLoginError('Account could not be created.');
-            }
+            setLoginError('Account could not be created. Please check your information and try again.');
         }
     }
 

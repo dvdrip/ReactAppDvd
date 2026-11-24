@@ -4,4 +4,5 @@
     <Deploy />
   </Project>
   <Project Path="ReactAppDvd.Server/ReactAppDvd.Server.csproj" />
+  <Project Path="ReactAppDvd.Server.Tests/ReactAppDvd.Server.Tests.csproj" />
 </Solution>

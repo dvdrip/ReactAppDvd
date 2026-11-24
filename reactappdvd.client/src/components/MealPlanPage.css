@@ -32,6 +32,37 @@
     border-radius: 999px;
 }
 
+.meal-plan-error,
+.meal-plan-message {
+    margin: 18px 0;
+    padding: 14px 16px;
+    color: #b6cbd6;
+    background: rgba(15, 30, 55, .78);
+    border: 1px solid rgba(148, 190, 218, .13);
+    border-radius: 12px;
+}
+
+.meal-plan-error {
+    color: #ffd1d1;
+    border-color: rgba(255, 125, 125, .35);
+}
+
+.meal-plan-empty {
+    padding: 32px;
+    color: #b6cbd6;
+    text-align: center;
+    background: rgba(15, 30, 55, .78);
+    border: 1px solid rgba(148, 190, 218, .13);
+    border-radius: 18px;
+}
+
+.meal-plan-empty h2 {
+    margin: 0 0 8px;
+    color: #f4f8fc;
+}
+
+.meal-plan-empty p { margin: 0 0 20px; }
+
 .meal-type-switcher {
     display: flex;
     width: fit-content;
@@ -64,6 +95,96 @@
     background: #6de1d4;
 }
 
+.meal-plan-actions,
+.meal-editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.meal-action-button {
+    padding: 10px 14px;
+    color: #b6cbd6;
+    background: rgba(15, 30, 55, .78);
+    border: 1px solid rgba(148, 190, 218, .2);
+    border-radius: 9px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.meal-action-button:hover:not(:disabled) { color: #eff8fb; border-color: #6de1d4; }
+.meal-action-button:disabled { opacity: .55; cursor: not-allowed; }
+.meal-action-button.primary { color: #062b3a; background: #6de1d4; border-color: #6de1d4; }
+.meal-action-button.danger { color: #ffd1d1; border-color: rgba(255, 125, 125, .35); }
+
+.meal-editor {
+    margin-bottom: 22px;
+    padding: 22px;
+    color: #b6cbd6;
+    background: rgba(15, 30, 55, .78);
+    border: 1px solid rgba(148, 190, 218, .13);
+    border-radius: 18px;
+}
+
+.meal-editor h2 {
+    margin: 0 0 18px;
+    color: #f4f8fc;
+    font-size: 20px;
+}
+
+.meal-editor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.meal-editor-grid label {
+    display: grid;
+    gap: 7px;
+    color: #d7e5eb;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.meal-editor-grid label span {
+    color: #8fa9bb;
+    font-weight: 400;
+}
+
+.meal-editor-grid input,
+.meal-editor-grid select,
+.meal-editor-grid textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 11px;
+    color: #eff8fb;
+    background: rgba(4, 17, 34, .75);
+    border: 1px solid rgba(148, 190, 218, .2);
+    border-radius: 8px;
+    font: inherit;
+    font-size: 13px;
+}
+
+.meal-editor-grid textarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.meal-editor-grid input:focus-visible,
+.meal-editor-grid select:focus-visible,
+.meal-editor-grid textarea:focus-visible,
+.meal-action-button:focus-visible,
+.meal-card-actions button:focus-visible {
+    outline: 2px solid #6de1d4;
+    outline-offset: 2px;
+}
+
+.meal-editor-steps { grid-column: 1 / -1; }
+.meal-editor-actions { margin: 18px 0 0; }
+
 .meal-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -86,6 +207,13 @@
     object-fit: cover;
     background: rgba(4, 17, 34, .55);
     border-radius: 12px;
+}
+
+.meal-image-unavailable {
+    display: grid;
+    place-items: center;
+    color: #8fa9bb;
+    font-size: 13px;
 }
 
 .meal-day-heading {
@@ -235,6 +363,28 @@
 
 .meal-cooking-details li { padding-left: 4px; }
 
+.meal-card-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(148, 190, 218, .13);
+}
+
+.meal-card-actions button {
+    padding: 0;
+    color: #6de1d4;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.meal-card-actions button:last-child { color: #e6a5a5; }
+.meal-card-actions button:disabled { opacity: .55; cursor: not-allowed; }
+
 @media (max-width: 900px) {
     .meal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -244,5 +394,7 @@
     .meal-type-switcher { width: 100%; }
     .meal-type-switcher button { min-width: 0; flex: 1; }
     .meal-grid { grid-template-columns: 1fr; }
+    .meal-editor-grid { grid-template-columns: 1fr; }
+    .meal-editor-steps { grid-column: auto; }
     .meal-card h2 { min-height: 0; }
 }
