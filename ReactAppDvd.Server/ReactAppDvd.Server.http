@@ -24,3 +24,44 @@ Content-Type: application/json
 
 ### Log out
 POST {{ReactAppDvd.Server_HostAddress}}/logout
+
+### Get the authenticated user's meal plans
+GET {{ReactAppDvd.Server_HostAddress}}/api/meal-plans
+
+### Create an empty breakfast plan
+POST {{ReactAppDvd.Server_HostAddress}}/api/meal-plans
+Content-Type: application/json
+
+{
+  "category": "breakfast"
+}
+
+### Get the user's breakfast plan
+GET {{ReactAppDvd.Server_HostAddress}}/api/meal-plans/breakfast
+
+### Get a category plan that does not exist (404)
+GET {{ReactAppDvd.Server_HostAddress}}/api/meal-plans/lunch
+
+### Reject an unsupported category (400)
+GET {{ReactAppDvd.Server_HostAddress}}/api/meal-plans/snack
+
+### Replace meals in the breakfast plan
+PUT {{ReactAppDvd.Server_HostAddress}}/api/meal-plans/breakfast
+Content-Type: application/json
+
+{
+  "meals": [
+    {
+      "day": "monday",
+      "name": "Oat bowl",
+      "imageId": "photo-123",
+      "imageAlt": "A bowl of oats topped with berries",
+      "prepTime": "10 minutes",
+      "ingredients": ["Oats", "Milk", "Berries"],
+      "steps": ["Combine the oats and milk.", "Add berries and serve."]
+    }
+  ]
+}
+
+### Delete the user's breakfast plan
+DELETE {{ReactAppDvd.Server_HostAddress}}/api/meal-plans/breakfast

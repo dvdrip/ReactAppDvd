@@ -47,7 +47,7 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '^/(weatherforecast|login|logout|register|auth/status)': {
+            '^/(weatherforecast|login|logout|register|auth/status|api/meal-plans)': {
                 target,
                 secure: false
             }
